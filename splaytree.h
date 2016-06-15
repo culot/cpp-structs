@@ -6,7 +6,7 @@
  *
  * https://www.cs.cmu.edu/~sleator/papers/self-adjusting.pdf
  */
-templace<class T>
+template<class T>
 class SplayTree {
   private:
     struct Node {
