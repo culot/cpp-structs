@@ -7,7 +7,7 @@
  * https://www.cs.cmu.edu/~sleator/papers/self-adjusting.pdf
  */
 template<class T>
-class SplayTree {
+class Splaytree {
   private:
     struct Node {
       Node*  left;
