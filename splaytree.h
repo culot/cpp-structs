@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstddef>
+#include <stdexcept>
+
 /*
  * Splay tree - a self-Adjusting binary search tree,
  * as first described by Daniel Dominic Sleator and Robert Endre Tarjan.
@@ -10,18 +13,105 @@ template<class T>
 class Splaytree {
   private:
     struct Node {
-      Node*  left;
-      Node*  right;
-      Node*  parent;
-      T      data;
+      Node*  left_   {nullptr};
+      Node*  right_  {nullptr};
+      Node*  parent_ {nullptr};
+      T      data_;
 
-      void   rotateLeft()   {}
-      void   rotateRight()  {}
-      void   splay()        {}
+      Node() {}
+      Node(const T& data, Node* parent)
+        : parent_(parent), data_(data) {}
+
+      void rotateLeft() {}
+
+      /*
+       *       y                      x
+       *      / \                    / \
+       *     x   c   ----------->   a   y
+       *    / \      rotate right      / \
+       *   a   b                      b   c
+       *
+       */
+      void rotateRight()  {
+        if (!parent_) {
+          return;
+        }
+        if (right_) {
+          parent_->left_ = right_;
+          right_->parent_ = parent_;
+        }
+        parent_->parent_ = this;
+        right_ = parent_;
+        parent_ = nullptr;
+      }
+
+      void splay() {}
     };
 
+//    static Node nullnode;
+
+    std::size_t  size_ {0};
+
+    void insert(const T& data, Node*& node, Node* parent = nullptr) {
+      if (!node) {
+        node = new Node(data, parent);
+        ++size_;
+      } else {
+        if (data < node->data_) {
+          insert(data, node->left_, node);
+        } else {
+          insert(data, node->right_, node);
+        }
+      }
+    }
+
   public:
-    void   insert(const T& data) {}
-    void   remove(const T& data) {}
-    Node*  find(const T& data)   {}
+    struct Iterator {
+      Iterator(const Node* node)
+        : node_(node) {}
+
+      bool operator!=(const Iterator& other) const {
+        return node_ != other.node_;
+      }
+
+      const T& operator*() const {
+        if (node_) {
+          return node_->data_;
+        } else {
+          throw std::out_of_range("Invalid node");
+        }
+      }
+
+      const Iterator& operator++() {
+        if (node_->left_) {
+          node_ = node_->left_;
+        } else if (node_->right_) {
+          node_ = node_->right_;
+        } else {
+          // XXX implement tree traversal
+          node_ = nullptr;
+        }
+        return *this;
+      }
+
+      private:
+        const Node* node_ {nullptr};
+    };
+
+    Node* root_ {nullptr};
+
+    Iterator begin() const {return Iterator(root_);}
+    Iterator end()   const {return Iterator(nullptr);}
+
+    Splaytree& insert(const T& data) {
+      insert(data, root_);
+      return *this;
+    }
+
+    std::size_t size() const          {return size_;}
+    void        remove(const T& data) {}
+    Node*       find(const T& data)   {}
 };
+
+// template<class T>
+// struct Splaytree<T>::Node Splaytree<T>::nullnode;
