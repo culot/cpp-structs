@@ -49,8 +49,6 @@ class Splaytree {
       void splay() {}
     };
 
-//    static Node nullnode;
-
     std::size_t  size_ {0};
 
     void insert(const T& data, Node*& node, Node* parent = nullptr) {
@@ -85,14 +83,19 @@ class Splaytree {
 
       // Breadth-First Search used for tree traversal
       const Iterator& operator++() {
-        if (!queue_.empty()) {
-          node_ = queue_.pop();
-        }
-        if (node_->left_) {
-          queue_.push(node_->left_);
-        }
-        if (node_->right_) {
-          queue_.push(node_->right_);
+        if (node_) {
+          if (node_->left_) {
+            queue_.push(node_->left_);
+          }
+          if (node_->right_) {
+            queue_.push(node_->right_);
+          }
+          if (queue_.empty()) {
+            node_ = nullptr;
+          } else {
+            node_ = queue_.front();
+            queue_.pop();
+          }
         }
         return *this;
       }
@@ -116,6 +119,3 @@ class Splaytree {
     void        remove(const T& data) {}
     Node*       find(const T& data)   {}
 };
-
-// template<class T>
-// struct Splaytree<T>::Node Splaytree<T>::nullnode;
