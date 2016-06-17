@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <stdexcept>
+#include <queue>
 
 /*
  * Splay tree - a self-Adjusting binary search tree,
@@ -82,20 +83,23 @@ class Splaytree {
         }
       }
 
+      // Breadth-First Search used for tree traversal
       const Iterator& operator++() {
+        if (!queue_.empty()) {
+          node_ = queue_.pop();
+        }
         if (node_->left_) {
-          node_ = node_->left_;
-        } else if (node_->right_) {
-          node_ = node_->right_;
-        } else {
-          // XXX implement tree traversal
-          node_ = nullptr;
+          queue_.push(node_->left_);
+        }
+        if (node_->right_) {
+          queue_.push(node_->right_);
         }
         return *this;
       }
 
       private:
-        const Node* node_ {nullptr};
+        std::queue<const Node*>  queue_;
+        const Node*              node_ {nullptr};
     };
 
     Node* root_ {nullptr};
